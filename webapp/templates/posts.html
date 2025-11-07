@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{%block title %}Lista de Posts{% endblock %}
+
+{% block content %}
+    <h1>Lista de Posts</h1>
+    
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" style="padding: 15px; margin: 20px 0; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <a href="{{ url_for('crear_post') }}" class="btn-create">Crear Nuevo Post</a>
+
+    {% for post in posts %}
+        <article class="post">
+            <h2>
+                <a href="{{ url_for('detalle_post', post_id=post.id) }}">{{ post.title }}</a>
+            </h2>
+            <p>{{ post.body | truncate(150) }}</p>
+            <div class="post-actions">
+                <a href="{{ url_for('editar_post', post_id=post.id) }}" class="btn-edit">Editar</a>
+                <form action="{{ url_for('eliminar_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este post?');">Borrar</button>
+                </form>
+            </div>
+        </article>
+    {% endfor %}
+{% endblock %}
+    
