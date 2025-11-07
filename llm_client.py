@@ -8,6 +8,10 @@ class GeminiClient:
     def __init__(self, api_key: str, model_name: str):
         if not api_key:
             raise ValueError("GEMINI_API_KEY no está configurada.")
+        if not model_name:
+            raise ValueError("MODEL no está configurado en las variables de entorno.")
+        # Configurar la API key como variable de entorno para genai
+        os.environ["GOOGLE_API_KEY"] = api_key
         self.client = genai.Client(api_key=api_key)
         self.model_name = model_name
         
