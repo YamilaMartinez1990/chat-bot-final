@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" style="padding: 15px; margin: 20px 0; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <article>
+        <h1>{{ post.title }}</h1>
+        <p style="color: #666; margin-bottom: 20px;">Post ID: {{ post.id }} | Usuario ID: {{ post.userId }}</p>
+        <div style="line-height: 1.6; margin-bottom: 30px;">
+            {{ post.body }}
+        </div>
+        
+        <div class="post-actions">
+            <a href="{{ url_for('editar_post', post_id=post.id) }}" class="btn-edit">Editar</a>
+            <form action="{{ url_for('eliminar_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn-delete" onclick="return confirm('¿Estás seguro de que deseas eliminar este post?');">Borrar</button>
+            </form>
+            <a href="{{ url_for('listar_posts') }}" style="margin-left: 10px;">Volver a la lista</a>
+        </div>
+    </article>
+{% endblock %}
