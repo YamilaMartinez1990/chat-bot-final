@@ -1,0 +1,26 @@
+# Variables de entorno (NUNCA subir a Git)
+.env
+.env.local
+.env.production
+
+# NOTA: .env.example SÍ se debe subir, por eso NO está aquí
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
