@@ -47,7 +47,7 @@
 </div>
 
 <!-- Spinner de carga -->
-<div id="loadingSpinner" class="text-center my-5" style="display: none;">
+<div id="loadingSpinner" class="text-center my-5 d-none">
   <div class="spinner-border text-primary" role="status">
     <span class="visually-hidden">Cargando...</span>
   </div>
@@ -55,7 +55,7 @@
 </div>
 
 <!-- Mensaje de error -->
-<div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert">
+<div id="errorMessage" class="alert alert-danger d-none" role="alert">
   <i class="bi bi-exclamation-triangle"></i> <span id="errorText"></span>
 </div>
 
@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const category = selectCategory.value;
 
     // Mostrar spinner y ocultar error
-    spinner.style.display = 'block';
-    errorDiv.style.display = 'none';
+    spinner.classList.remove('d-none');
+    errorDiv.classList.add('d-none');
     container.innerHTML = '';
 
     // Hacer petición al backend
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
       })
       .then(data => {
-        spinner.style.display = 'none';
+        spinner.classList.add('d-none');
 
         if (data.status === 'ok' && data.articles && data.articles.length > 0) {
           mostrarNoticias(data.articles);
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(error => {
-        spinner.style.display = 'none';
+        spinner.classList.add('d-none');
         mostrarError(error.message);
       });
   }
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function mostrarError(mensaje) {
     errorText.textContent = mensaje;
-    errorDiv.style.display = 'block';
+    errorDiv.classList.remove('d-none');
   }
 });
 </script>
