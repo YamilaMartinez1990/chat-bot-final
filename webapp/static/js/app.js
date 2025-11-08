@@ -91,36 +91,110 @@
       input: $("#chatInput"),
       btnSend: $("#btnSend"),
       btnClear: $("#btnClear"),
-      role: $("#roleSelect"),
+      roleButtons: null, // Se inicializa después
+      currentRoleBadge: $("#currentRole"),
+    },
+
+    // Mensajes de bienvenida según rol
+    welcomeMessages: {
+      asistente: "¡Hola! Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?",
+      profesor: "¡Bienvenido! Soy tu profesor virtual. Estoy aquí para explicarte cualquier tema de forma didáctica. ¿Qué te gustaría aprender?",
+      traductor: "¡Hola! Soy tu traductor personal. Puedo ayudarte a traducir texto entre diferentes idiomas. ¿Qué necesitas traducir?",
+      programador: "¡Hola! Soy tu asistente de programación. Puedo ayudarte con código, debugging y conceptos de programación. ¿En qué estás trabajando?",
+      redactor: "¡Hola! Soy tu redactor profesional. Puedo ayudarte a redactar emails, cartas, documentos formales, mejorar textos y corregir gramática. ¿Qué necesitas redactar o mejorar?",
+      coach_carrera: "¡Hola! Soy tu coach de carrera. Puedo ayudarte con tu CV, preparación para entrevistas, orientación laboral y desarrollo profesional. ¿En qué área de tu carrera necesitas ayuda?"
     },
 
     init() {
-      // Rol guardado
-      this.els.role.value = Store.getRole();
+      // Inicializar elementos
+      this.els.roleButtons = document.querySelectorAll(".role-btn");
+      
+      // Establecer rol guardado
+      const savedRole = Store.getRole();
+      this.setActiveRole(savedRole);
+      
       this.bindEvents();
       this.renderAll(Store.getMessages());
       this.scrollToEnd();
+      
+      // Mensaje de bienvenida inicial
       if (Store.getMessages().length === 0) {
-        this.pushBot("¡Hola! ¿Cómo puedo ayudarte hoy?");
+        this.pushBot(this.welcomeMessages[savedRole]);
       }
     },
 
     bindEvents() {
+      // Enviar mensaje
       this.els.form.addEventListener("submit", (e) => {
         e.preventDefault();
         this.handleSend();
       });
 
+      // Limpiar chat
       this.els.btnClear.addEventListener("click", () => {
         Store.clear();
         this.els.body.innerHTML = "";
-        this.pushBot("Memoria local borrada. Empecemos de nuevo.");
+        const currentRole = Store.getRole();
+        this.pushBot(this.welcomeMessages[currentRole]);
       });
 
-      this.els.role.addEventListener("change", (e) => {
-        Store.setRole(e.target.value);
-        showToast(`Rol cambiado a: ${e.target.value}`);
+      // Botones de roles
+      this.els.roleButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const newRole = btn.getAttribute("data-role");
+          this.changeRole(newRole);
+        });
       });
+    },
+
+    changeRole(newRole) {
+      // Guardar nuevo rol
+      Store.setRole(newRole);
+      
+      // Actualizar UI
+      this.setActiveRole(newRole);
+      
+      // Resetear chat y mostrar mensaje de bienvenida
+      Store.clear();
+      this.els.body.innerHTML = "";
+      this.pushBot(this.welcomeMessages[newRole]);
+      
+      // Toast de confirmación
+      const roleNames = {
+        asistente: "Asistente",
+        profesor: "Profesor",
+        traductor: "Traductor",
+        programador: "Programador",
+        redactor: "Redactor Profesional",
+        coach_carrera: "Coach de Carrera"
+      };
+      showToast(`Rol cambiado a: ${roleNames[newRole]}`);
+    },
+
+    setActiveRole(role) {
+      // Remover clase active de todos los botones
+      this.els.roleButtons.forEach((btn) => {
+        btn.classList.remove("active");
+      });
+      
+      // Agregar clase active al botón seleccionado
+      const activeBtn = document.querySelector(`.role-btn[data-role="${role}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add("active");
+      }
+      
+      // Actualizar badge en el header
+      const roleNames = {
+        asistente: "Asistente",
+        profesor: "Profesor",
+        traductor: "Traductor",
+        programador: "Programador",
+        redactor: "Redactor",
+        coach_carrera: "Coach Carrera"
+      };
+      if (this.els.currentRoleBadge) {
+        this.els.currentRoleBadge.textContent = roleNames[role];
+      }
     },
 
     async handleSend() {
@@ -187,8 +261,12 @@
     renderMessage({ role, text, time }) {
       const div = document.createElement("div");
       div.className = `message ${role}`;
+      
+      // Procesar markdown si es un mensaje del bot
+      const processedText = role === "bot" ? formatMarkdown(text) : escapeHtml(text);
+      
       div.innerHTML = `
-        <div>${escapeHtml(text)}</div>
+        <div>${processedText}</div>
         <small>${role === "user" ? "Vos" : "Bot"} • ${time}</small>
       `;
       this.els.body.appendChild(div);
@@ -204,7 +282,29 @@
     return str
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;");
+      .replaceAll(">", "&gt;")
+      .replaceAll("\n", "<br>");
+  }
+
+  // Procesar Markdown básico
+  function formatMarkdown(str) {
+    // Escapar HTML primero
+    let formatted = escapeHtml(str);
+    
+    // Convertir negritas: **texto** o ***texto***
+    formatted = formatted.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong>$1</strong>');
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Convertir cursivas: *texto*
+    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    
+    // Convertir código inline: `código`
+    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Convertir listas con bullets (- item)
+    formatted = formatted.replace(/^- (.+)$/gm, '• $1');
+    
+    return formatted;
   }
 
   // Init

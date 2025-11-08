@@ -1,14 +1,14 @@
 # chat-bot-final
-# 🤖 Chatbot con IA - API REST & Frontend
+# 🤖 Chatbot con IA - Asistente Inteligente + Noticias
 
 ## 📝 Descripción del Proyecto
 
-Este proyecto es una aplicación web completa que combina un **chatbot inteligente** con capacidades de IA (usando Google Gemini) y un **sistema CRUD de posts** consumiendo una API REST externa (JSONPlaceholder). 
+Este proyecto es una aplicación web completa que combina un **chatbot inteligente** con capacidades de IA (usando Google Gemini) y un **sistema de noticias en tiempo real** consumiendo NewsAPI. 
 
 La aplicación permite:
-- 💬 Interactuar con un chatbot que puede asumir diferentes roles (Asistente, Profesor, Traductor, Programador)
-- 📚 Gestionar posts mediante operaciones CRUD (Crear, Leer, Actualizar, Eliminar)
-- 🔄 Consumir y mostrar datos de una API REST externa
+- 💬 Interactuar con un chatbot que puede asumir diferentes roles especializados (Asistente, Profesor, Traductor, Programador, Redactor, Coach de Carrera)
+- � Ver noticias del mundo organizadas por país y categoría
+- 🔄 Integración con APIs externas (Google Gemini y NewsAPI)
 - 💾 Mantener el historial de conversaciones usando localStorage
 
 ---
@@ -22,11 +22,12 @@ La aplicación permite:
   - ✅ Desarrollo de la API REST `/api/chat` para el chatbot
   - ✅ Integración con Google Gemini API para procesamiento de lenguaje natural
   - ✅ Sistema de gestión de memoria y contexto de conversación
-  - ✅ Implementación de diferentes roles para el chatbot (Profesor, Traductor, Programador, Asistente)
+  - ✅ Implementación de 6 roles especializados para el chatbot
   - ✅ Desarrollo del frontend con HTML, CSS (Bootstrap) y JavaScript vanilla
-  - ✅ Implementación del CRUD de posts consumiendo JSONPlaceholder API
+  - ✅ Integración con NewsAPI para noticias en tiempo real
   - ✅ Sistema de manejo de errores y validaciones
   - ✅ Diseño responsive de la interfaz de usuario
+  - ✅ Implementación de procesamiento de Markdown en las respuestas
 
 ---
 
@@ -50,19 +51,19 @@ La aplicación permite:
 
 ### APIs Externas
 - **Google Gemini API** - Procesamiento de lenguaje natural
-- **JSONPlaceholder** - API REST de prueba para CRUD de posts
+- **NewsAPI** - Noticias en tiempo real de múltiples fuentes
 
 ---
 
 ## 📁 Estructura del Proyecto
 
 ```
-chat-bot-prueba/
-├── app_unified.py          # ⭐ Aplicación Flask principal UNIFICADA
+chat-bot-final/
+├── app_unified.py          # ⭐ Aplicación Flask principal
 ├── chat_service.py         # Servicio de lógica del chatbot
 ├── llm_client.py           # Cliente para comunicarse con Gemini
 ├── config.py               # Configuración y variables de entorno
-├── roles.py                # Definición de roles del chatbot
+├── roles.py                # Definición de 6 roles del chatbot
 ├── prompts.py              # Generación de prompts del sistema
 ├── memory.py               # Gestión de memoria/historial de chat
 ├── requirements.txt        # Dependencias de Python
@@ -81,10 +82,7 @@ chat-bot-prueba/
     └── templates/          # Plantillas HTML
         ├── base.html       # Template base con navbar
         ├── chat.html       # Interfaz del chatbot
-        ├── posts.html      # Lista de posts
-        ├── post_detalle.html
-        ├── crear_post.html
-        └── editar_post.html
+        └── noticias.html   # Página de noticias
 ```
 
 ---
@@ -153,9 +151,10 @@ python app_unified.py
 ```
 
 La aplicación estará disponible en:
-- 🏠 **Página Principal (Chat):** http://127.0.0.1:5000/
-- 📚 **CRUD de Posts:** http://127.0.0.1:5000/posts
-- 🔌 **API del Chat:** POST http://127.0.0.1:5000/api/chat
+
+- 🏠 **Asistente IA:** <http://127.0.0.1:5000/>
+- � **Noticias:** <http://127.0.0.1:5000/noticias>
+- 🔌 **API del Chat:** POST <http://127.0.0.1:5000/api/chat>
 
 ---
 
@@ -163,27 +162,29 @@ La aplicación estará disponible en:
 
 ### 💬 Chatbot
 
-1. Acceder a http://127.0.0.1:5000/
-2. Seleccionar un rol para el chatbot (Asistente, Profesor, Traductor, Programador)
+1. Acceder a <http://127.0.0.1:5000/>
+2. En el sidebar izquierdo, seleccionar un rol para el chatbot
 3. Escribir un mensaje en el campo de texto
 4. Presionar "Enviar" o Enter
 5. Esperar la respuesta del chatbot
 6. El historial se guarda automáticamente en el navegador
 
 **Roles disponibles:**
+
 - **Asistente**: Ayudante general para cualquier consulta
 - **Profesor**: Explica conceptos de forma didáctica
-- **Traductor**: Traduce texto entre diferentes idiomas
-- **Programador**: Ayuda con código y problemas de programación
+- **Traductor**: Traduce texto entre diferentes idiomas (exclusivamente traducción)
+- **Programador**: Ayuda con código y problemas de programación (solo temas de programación)
+- **Redactor Profesional**: Redacción y corrección de textos
+- **Coach de Carrera**: Orientación profesional y desarrollo de carrera
 
-### 📝 CRUD de Posts
+### 📰 Noticias
 
-1. Acceder a http://127.0.0.1:5000/posts
-2. **Ver posts**: Lista todos los posts disponibles
-3. **Ver detalle**: Click en "Ver" para ver el detalle completo
-4. **Crear**: Click en "Crear Nuevo Post" y completar el formulario
-5. **Editar**: Click en "Editar" en el detalle de un post
-6. **Eliminar**: Click en "Eliminar" en el detalle de un post
+1. Acceder a <http://127.0.0.1:5000/noticias>
+2. Seleccionar país y categoría de interés
+3. Hacer clic en "Cargar Noticias"
+4. Navegar por las tarjetas de noticias
+5. Hacer clic en "Leer más" para abrir la noticia completa en una nueva pestaña
 
 ---
 
@@ -258,24 +259,27 @@ fetch('http://127.0.0.1:5000/api/chat', {
 ## 🧪 Características Implementadas
 
 ### Backend
+
 - ✅ Endpoint `/api/chat` para el chatbot
-- ✅ Sistema de roles intercambiables
+- ✅ Sistema de 6 roles especializados intercambiables
 - ✅ Gestión de memoria/contexto de conversación
 - ✅ Manejo de errores y validaciones
 - ✅ Integración con Google Gemini API
-- ✅ CRUD completo de posts consumiendo API externa
+- ✅ Integración con NewsAPI para noticias
 - ✅ Manejo de errores HTTP (404, 500, 503)
+- ✅ Procesamiento de Markdown en respuestas
 
 ### Frontend
+
 - ✅ Interfaz de chat moderna y responsive
-- ✅ Selector de roles en tiempo real
+- ✅ Sidebar con 6 roles seleccionables
 - ✅ Indicador de "escribiendo..." mientras espera respuesta
 - ✅ Persistencia del historial en localStorage
 - ✅ Botón para limpiar conversación
-- ✅ Toasts/notificaciones de Bootstrap
-- ✅ Navegación entre Chat y Posts
-- ✅ Formularios para crear/editar posts
+- ✅ Filtros por país y categoría para noticias
+- ✅ Navegación entre Chat y Noticias
 - ✅ Diseño responsive con Bootstrap
+- ✅ Formato de texto con Markdown (negrita, cursiva, código)
 
 ---
 
@@ -304,21 +308,27 @@ pip install -r requirements.txt
 ## 📦 Archivos Importantes
 
 ### `app_unified.py` ⭐
-Archivo principal que ejecuta toda la aplicación. Combina el chatbot y el CRUD de posts.
+
+Archivo principal que ejecuta toda la aplicación. Combina el chatbot y las noticias.
 
 ### `chat_service.py`
+
 Lógica del servicio de chat: gestiona roles, memoria e interacción con el modelo de IA.
 
 ### `config.py`
+
 Configuración centralizada usando variables de entorno.
 
 ### `roles.py`
-Define los diferentes roles que puede asumir el chatbot.
+
+Define los 6 roles especializados que puede asumir el chatbot.
 
 ### `llm_client.py`
+
 Cliente que se comunica con la API de Google Gemini.
 
 ### `memory.py`
+
 Sistema de gestión de memoria para mantener el contexto de la conversación.
 
 ---
@@ -337,15 +347,16 @@ Sistema de gestión de memoria para mantener el contexto de la conversación.
 - [Documentación de Flask](https://flask.palletsprojects.com/)
 - [Google Gemini API](https://ai.google.dev/docs)
 - [Bootstrap 5](https://getbootstrap.com/docs/5.3/)
-- [JSONPlaceholder](https://jsonplaceholder.typicode.com/)
+- [NewsAPI](https://newsapi.org/docs)
 
 ---
 
 ## 📝 Notas Adicionales
 
-- El CRUD de posts usa la API de JSONPlaceholder, que es una API de prueba. Los cambios no se persisten realmente en un servidor.
-- El historial del chat se guarda en el navegador (localStorage), no en el servidor.
-- Para cambiar el modelo de IA, modificar la variable `MODEL` en el archivo `.env`.
+- NewsAPI tiene un plan gratuito con 100 requests/día
+- El historial del chat se guarda en el navegador (localStorage), no en el servidor
+- Para cambiar el modelo de IA, modificar la variable `MODEL` en el archivo `.env`
+- Los roles especializados (Programador, Traductor, Redactor, Coach) solo responden consultas de su dominio
 
 ---
 
@@ -353,9 +364,9 @@ Sistema de gestión de memoria para mantener el contexto de la conversación.
 
 Proyecto desarrollado como trabajo práctico final para Arquitectura y diseño de Interfaces.
 
-**Desarrollado por:** Yamila Anahí Martínez 
+**Desarrollado por:** Yamila Anahí Martínez  
 **Fecha:** Noviembre 2025  
-**Tecnologías:** Python, Flask, JavaScript, Google Gemini API
+**Tecnologías:** Python, Flask, JavaScript, Google Gemini API, NewsAPI
 
 ---
 

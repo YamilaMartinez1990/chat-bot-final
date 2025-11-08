@@ -3,24 +3,53 @@
 {% block content %} 
  
 <div class="row justify-content-center"> 
+  <!-- Sidebar de Roles -->
+  <div class="col-12 col-lg-2 mb-3 mb-lg-0">
+    <div class="roles-sidebar">
+      <h6 class="text-white mb-3 text-center fw-bold">Seleccionar Rol</h6>
+      
+      <button class="role-btn active" data-role="asistente">
+        <i class="bi bi-headset"></i>
+        <span>Asistente</span>
+      </button>
+      
+      <button class="role-btn" data-role="profesor">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>Profesor</span>
+      </button>
+      
+      <button class="role-btn" data-role="traductor">
+        <i class="bi bi-translate"></i>
+        <span>Traductor</span>
+      </button>
+      
+      <button class="role-btn" data-role="programador">
+        <i class="bi bi-code-slash"></i>
+        <span>Programador</span>
+      </button>
+      
+      <button class="role-btn" data-role="redactor">
+        <i class="bi bi-pen"></i>
+        <span>Redactor</span>
+      </button>
+      
+      <button class="role-btn" data-role="coach_carrera">
+        <i class="bi bi-briefcase"></i>
+        <span>Coach Carrera</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Principal -->
   <div class="col-12 col-lg-8"> 
     <div class="card shadow-lg border-0"> 
       <div class="card-header d-flex flex-wrap gap-2 align-items-center">
-        <span class="fw-semibold me-auto">Chat</span> 
- 
-        <!-- Selector de Rol (solo UI por ahora) --> 
-        <div class="d-flex align-items-center gap-2"> 
-          <label for="roleSelect" class="form-label m-0 small text-muted">Rol</label> 
-          <select id="roleSelect" class="form-select form-select-sm"> 
-            <option value="asistente" selected>Asistente</option> 
-            <option value="profesor">Profesor</option> 
-            <option value="traductor">Traductor</option> 
-            <option value="programador">Programador</option> 
-          </select> 
-        </div> 
+        <span class="fw-semibold me-auto">Chat con IA</span> 
+        
+        <span id="currentRole" class="badge bg-primary">Asistente</span>
  
         <button id="btnClear" class="btn btn-outline-secondary btn-sm"> 
-          Limpiar 
+          <i class="bi bi-trash"></i> Limpiar 
         </button> 
       </div> 
  
@@ -38,11 +67,11 @@
             autocomplete="off" 
           /> 
           <button id="btnSend" class="btn btn-primary" type="submit"> 
-            Enviar 
+            <i class="bi bi-send-fill"></i> Enviar 
           </button> 
         </form> 
         <small class="text-muted"> 
-          * Esta versión usa <strong>integración de backend y frontend</strong>. Existe conexión.
+          * Chatbot con Google Gemini AI
         </small> 
       </div> 
     </div> 

@@ -13,6 +13,6 @@ class Settings:
     timeout_seconds: int = int(os.getenv("TIMEOUT_SECONDS","30"))
     max_history_messages: int = int(os.getenv("MAX_HISTORY","12"))
     system_name: str = os.getenv("SYSTEM_NAME", "Chatbot Gemini")
-    api_base_url: str = os.getenv("API_BASE_URL", "https://jsonplaceholder.typicode.com")
+    news_api_key: str = os.getenv("NEWS_API_KEY", "")
 
 settings = Settings()

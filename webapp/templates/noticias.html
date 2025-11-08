@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-4">
+      <i class="bi bi-newspaper"></i> Noticias del Mundo
+    </h2>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+  <div class="col-md-6">
+    <label for="selectCountry" class="form-label">País:</label>
+    <select id="selectCountry" class="form-select">
+      <option value="us" selected>Estados Unidos</option>
+      <option value="ar">Argentina</option>
+      <option value="mx">México</option>
+      <option value="es">España</option>
+      <option value="gb">Reino Unido</option>
+      <option value="fr">Francia</option>
+      <option value="de">Alemania</option>
+      <option value="br">Brasil</option>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <label for="selectCategory" class="form-label">Categoría:</label>
+    <select id="selectCategory" class="form-select">
+      <option value="general">General</option>
+      <option value="business">Negocios</option>
+      <option value="technology" selected>Tecnología</option>
+      <option value="entertainment">Entretenimiento</option>
+      <option value="health">Salud</option>
+      <option value="science">Ciencia</option>
+      <option value="sports">Deportes</option>
+    </select>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-12">
+    <button id="btnCargarNoticias" class="btn btn-primary">
+      <i class="bi bi-arrow-clockwise"></i> Cargar Noticias
+    </button>
+  </div>
+</div>
+
+<!-- Spinner de carga -->
+<div id="loadingSpinner" class="text-center my-5" style="display: none;">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="mt-2">Obteniendo noticias...</p>
+</div>
+
+<!-- Mensaje de error -->
+<div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert">
+  <i class="bi bi-exclamation-triangle"></i> <span id="errorText"></span>
+</div>
+
+<!-- Contenedor de noticias -->
+<div id="noticiasContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  <!-- Las tarjetas de noticias se cargarán aquí dinámicamente -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btnCargar = document.getElementById('btnCargarNoticias');
+  const selectCountry = document.getElementById('selectCountry');
+  const selectCategory = document.getElementById('selectCategory');
+  const container = document.getElementById('noticiasContainer');
+  const spinner = document.getElementById('loadingSpinner');
+  const errorDiv = document.getElementById('errorMessage');
+  const errorText = document.getElementById('errorText');
+
+  // Cargar noticias al hacer clic
+  btnCargar.addEventListener('click', cargarNoticias);
+
+  // Cargar noticias automáticamente al entrar
+  cargarNoticias();
+
+  function cargarNoticias() {
+    const country = selectCountry.value;
+    const category = selectCategory.value;
+
+    // Mostrar spinner y ocultar error
+    spinner.style.display = 'block';
+    errorDiv.style.display = 'none';
+    container.innerHTML = '';
+
+    // Hacer petición al backend
+    fetch(`/api/noticias?country=${country}&category=${category}`)
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(err.message || 'Error al cargar noticias');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        spinner.style.display = 'none';
+
+        if (data.status === 'ok' && data.articles && data.articles.length > 0) {
+          mostrarNoticias(data.articles);
+        } else {
+          mostrarError('No se encontraron noticias para esta búsqueda');
+        }
+      })
+      .catch(error => {
+        spinner.style.display = 'none';
+        mostrarError(error.message);
+      });
+  }
+
+  function mostrarNoticias(articles) {
+    container.innerHTML = articles.map(article => `
+      <div class="col">
+        <div class="card h-100 noticia-card">
+          ${article.urlToImage ? `
+            <img src="${article.urlToImage}" class="card-img-top noticia-img" alt="${article.title}">
+          ` : `
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+              <i class="bi bi-image text-white" style="font-size: 3rem;"></i>
+            </div>
+          `}
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">${article.title}</h5>
+            <p class="card-text text-muted small mb-2">
+              <i class="bi bi-calendar"></i> ${new Date(article.publishedAt).toLocaleDateString('es-ES')}
+              ${article.author ? `<br><i class="bi bi-person"></i> ${article.author}` : ''}
+            </p>
+            <p class="card-text">${article.description || 'Sin descripción disponible'}</p>
+            <div class="mt-auto">
+              <a href="${article.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                Leer más <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+          ${article.source && article.source.name ? `
+            <div class="card-footer">
+              <small class="text-muted"><i class="bi bi-newspaper"></i> ${article.source.name}</small>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function mostrarError(mensaje) {
+    errorText.textContent = mensaje;
+    errorDiv.style.display = 'block';
+  }
+});
+</script>
+{% endblock %}

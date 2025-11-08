@@ -1,9 +1,9 @@
 """
-Aplicación Flask Unificada - Chatbot con IA + CRUD de Posts
-Combina el frontend del chatbot y la API REST con el CRUD de posts
+Aplicación Flask Unificada - Chatbot con IA + Noticias
+Combina el frontend del chatbot con integración de NewsAPI
 """
 import requests
-from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, flash, session
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from chat_service import ChatService
 from roles import RolePreset
@@ -13,11 +13,7 @@ from config import settings
 app = Flask(__name__, 
             template_folder='webapp/templates',
             static_folder='webapp/static')
-app.secret_key = 'tu_clave_secreta_para_flash_messages_123'  # Para mensajes flash
 CORS(app)
-
-# Configuración de la API externa para posts (desde .env)
-API_BASE_URL = settings.api_base_url
 
 # Inicializar el servicio de chat
 chat_service = ChatService(role=RolePreset.ASISTENTE)
@@ -62,6 +58,8 @@ def chat_endpoint():
             "traductor": RolePreset.TRADUCTOR,
             "programador": RolePreset.PROGRAMADOR,
             "asistente": RolePreset.ASISTENTE,
+            "redactor": RolePreset.REDACTOR,
+            "coach_carrera": RolePreset.COACH_CARRERA,
         }
         
         if role in role_mapping:
@@ -85,113 +83,50 @@ def chat_endpoint():
 
 
 # ============================================
-# RUTAS DEL CRUD DE POSTS
+# RUTAS DE NOTICIAS (NewsAPI)
 # ============================================
 
-def manejar_error_api(response):
+@app.route("/noticias")
+def noticias():
+    """Página de noticias - Lista todas las noticias"""
+    return render_template("noticias.html")
+
+@app.route("/api/noticias")
+def api_noticias():
     """
-    Verifica si la respuesta de la API fue exitosa.
-    Si no, aborta con el código de error.
+    Endpoint para obtener noticias desde NewsAPI
+    Query params: ?country=us&category=technology
     """
     try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        if response.status_code == 404:
-            abort(404, description="Recurso no encontrado en la API externa")
+        # Parámetros opcionales
+        country = request.args.get('country', 'us')  # Por defecto: USA
+        category = request.args.get('category', 'general')  # general, business, technology, etc.
+        
+        # Verificar que haya API key
+        if not settings.news_api_key or settings.news_api_key == "tu_api_key_aqui":
+            return jsonify({
+                "error": "API key no configurada",
+                "message": "Por favor configura NEWS_API_KEY en el archivo .env"
+            }), 500
+        
+        # Construir URL de NewsAPI
+        url = f"https://newsapi.org/v2/top-headlines?country={country}&category={category}&apiKey={settings.news_api_key}"
+        
+        # Hacer petición a NewsAPI
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            return jsonify(data)
         else:
-            print(f"Error en la API: {e}")
-            abort(500, description="Error al conectar con la API externa.")
-    except requests.exceptions.RequestException as e:
-        print(f"Error de conexión: {e}")
-        abort(503, description="No se pudo conectar con la API externa.")
-
-
-@app.route("/posts")
-def listar_posts():
-    """Lista todos los posts desde la API externa"""
-    response = requests.get(f"{API_BASE_URL}/posts")
-    manejar_error_api(response)
-    posts = response.json()
-    return render_template("posts.html", posts=posts)
-
-
-@app.route("/posts/<int:post_id>")
-def detalle_post(post_id):
-    """Muestra el detalle de un post específico"""
-    response = requests.get(f"{API_BASE_URL}/posts/{post_id}")
-    manejar_error_api(response)
-    post = response.json()
-    return render_template("post_detalle.html", post=post)
-
-
-@app.route("/posts/crear", methods=["GET", "POST"])
-def crear_post():
-    """Crear un nuevo post"""
-    if request.method == "POST":
-        nuevo_post = {
-            "title": request.form.get("title"),
-            "body": request.form.get("body"),
-            "userId": 1
-        }
-        
-        response = requests.post(f"{API_BASE_URL}/posts", json=nuevo_post)
-        manejar_error_api(response)
-        
-        # Imprimir en consola para verificar
-        post_creado = response.json()
-        print(f"✅ Post creado exitosamente! ID: {post_creado.get('id')}")
-        print(f"   Título: {post_creado.get('title')}")
-        print(f"   Respuesta completa: {post_creado}")
-        
-        # Mensaje flash para mostrar en el navegador
-        flash(f'✅ Post "{nuevo_post["title"]}" creado exitosamente! (ID: {post_creado.get("id")}) - Nota: JSONPlaceholder no guarda datos realmente.', 'success')
-        
-        return redirect(url_for("listar_posts"))
-    
-    return render_template("crear_post.html")
-
-
-@app.route("/posts/<int:post_id>/editar", methods=["GET", "POST"])
-def editar_post(post_id):
-    """Editar un post existente"""
-    if request.method == "POST":
-        post_actualizado = {
-            "title": request.form.get("title"),
-            "body": request.form.get("body"),
-            "userId": 1
-        }
-        
-        response = requests.put(f"{API_BASE_URL}/posts/{post_id}", json=post_actualizado)
-        manejar_error_api(response)
-        
-        # Mensaje de confirmación
-        flash(f'✅ Post "{post_actualizado["title"]}" editado exitosamente!', 'success')
-        
-        return redirect(url_for("detalle_post", post_id=post_id))
-    
-    # GET: obtener el post actual
-    response = requests.get(f"{API_BASE_URL}/posts/{post_id}")
-    manejar_error_api(response)
-    post = response.json()
-    return render_template("editar_post.html", post=post)
-
-
-@app.route("/posts/<int:post_id>/eliminar", methods=["POST"])
-def eliminar_post(post_id):
-    """Eliminar un post"""
-    response = requests.delete(f"{API_BASE_URL}/posts/{post_id}")
-    manejar_error_api(response)
-    
-    # Log en consola
-    print(f"🗑️ DELETE enviado para post ID: {post_id}")
-    print(f"   Status code: {response.status_code}")
-    print(f"   Respuesta: {response.json() if response.text else 'vacío'}")
-    
-    # Mensaje de confirmación
-    flash(f'✅ Post eliminado exitosamente! (ID: {post_id}) - Nota: JSONPlaceholder no elimina datos realmente.', 'success')
-    
-    return redirect(url_for("listar_posts"))
-
+            return jsonify({
+                "error": "Error al obtener noticias",
+                "status_code": response.status_code,
+                "message": response.text
+            }), response.status_code
+            
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "Timeout al consultar NewsAPI"}), 504
 
 # ============================================
 # MANEJO DE ERRORES
@@ -218,10 +153,10 @@ def error_503(error):
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🚀 Iniciando aplicación Flask unificada...")
+    print("🚀 Iniciando Chatbot con IA...")
     print("=" * 60)
-    print("📍 Chat con IA: http://127.0.0.1:5000/")
-    print("📍 CRUD Posts: http://127.0.0.1:5000/posts")
+    print("📍 Asistente IA: http://127.0.0.1:5000/")
+    print("📍 Noticias: http://127.0.0.1:5000/noticias")
     print("📍 API Chat: POST http://127.0.0.1:5000/api/chat")
     print("=" * 60)
     app.run(host='127.0.0.1', port=5000, debug=True)
