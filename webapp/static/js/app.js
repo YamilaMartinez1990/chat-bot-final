@@ -270,10 +270,13 @@
         <small>${role === "user" ? "Vos" : "Bot"} • ${time}</small>
       `;
       this.els.body.appendChild(div);
+      
+      // Scroll automático al final
+      ScrollManager.scrollToBottom();
     },
 
     scrollToEnd() {
-      this.els.body.scrollTop = this.els.body.scrollHeight;
+      ScrollManager.scrollToBottom();
     },
   };
 
@@ -307,6 +310,122 @@
     return formatted;
   }
 
+  // --------------------------
+  // THEME TOGGLE (Modo Oscuro)
+  // --------------------------
+  const ThemeManager = {
+    KEY: 'cg_theme',
+    
+    init() {
+      const savedTheme = localStorage.getItem(this.KEY) || 'light';
+      this.setTheme(savedTheme);
+      
+      const toggleBtn = $('#themeToggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => this.toggle());
+      }
+    },
+    
+    setTheme(theme) {
+      document.documentElement.setAttribute('data-bs-theme', theme);
+      localStorage.setItem(this.KEY, theme);
+      this.updateIcon(theme);
+    },
+    
+    toggle() {
+      const current = document.documentElement.getAttribute('data-bs-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      this.setTheme(newTheme);
+    },
+    
+    updateIcon(theme) {
+      const icon = $('#themeToggle i');
+      if (!icon) return;
+      
+      if (theme === 'dark') {
+        icon.className = 'bi bi-sun-fill';
+      } else {
+        icon.className = 'bi bi-moon-fill';
+      }
+    }
+  };
+
+  // --------------------------
+  // SCROLL TO BOTTOM
+  // --------------------------
+  const ScrollManager = {
+    init() {
+      const chatBody = $('#chatBody');
+      const scrollBtn = $('#scrollToBottom');
+      
+      if (!chatBody || !scrollBtn) return;
+      
+      // Mostrar/ocultar botón según scroll
+      chatBody.addEventListener('scroll', () => {
+        const isNearBottom = chatBody.scrollHeight - chatBody.scrollTop - chatBody.clientHeight < 100;
+        
+        if (isNearBottom) {
+          scrollBtn.classList.remove('show');
+        } else {
+          scrollBtn.classList.add('show');
+        }
+      });
+      
+      // Click en el botón
+      scrollBtn.addEventListener('click', () => {
+        chatBody.scrollTo({
+          top: chatBody.scrollHeight,
+          behavior: 'smooth'
+        });
+      });
+    },
+    
+    scrollToBottom() {
+      const chatBody = $('#chatBody');
+      if (chatBody) {
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+    }
+  };
+
+  // --------------------------
+  // CHARACTER COUNTER
+  // --------------------------
+  const CharCounter = {
+    MAX_CHARS: 500,
+    
+    init() {
+      const input = $('#chatInput');
+      const counter = $('#charCounter');
+      
+      if (!input || !counter) return;
+      
+      input.addEventListener('input', () => {
+        this.update(input.value.length, counter);
+      });
+    },
+    
+    update(length, counterEl) {
+      counterEl.textContent = `${length} / ${this.MAX_CHARS}`;
+      
+      // Cambiar color según el porcentaje
+      const percentage = (length / this.MAX_CHARS) * 100;
+      
+      counterEl.classList.remove('warning', 'danger');
+      
+      if (percentage >= 90) {
+        counterEl.classList.add('danger');
+      } else if (percentage >= 75) {
+        counterEl.classList.add('warning');
+      }
+    }
+  };
+
   // Init
-  document.addEventListener("DOMContentLoaded", () => ChatUI.init());
+  document.addEventListener("DOMContentLoaded", () => {
+    ChatUI.init();
+    ThemeManager.init();
+    ScrollManager.init();
+    CharCounter.init();
+  });
 })();

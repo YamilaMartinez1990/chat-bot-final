@@ -94,7 +94,9 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => {
         if (!response.ok) {
           return response.json().then(err => {
-            throw new Error(err.message || 'Error al cargar noticias');
+            throw new Error(err.message || `Error HTTP ${response.status}`);
+          }).catch(() => {
+            throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
           });
         }
         return response.json();
@@ -110,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => {
         spinner.classList.add('d-none');
-        mostrarError(error.message);
+        console.error('Error completo:', error);
+        mostrarError(error.message || 'Error desconocido al cargar noticias');
       });
   }
 

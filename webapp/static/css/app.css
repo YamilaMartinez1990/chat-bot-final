@@ -104,7 +104,7 @@ main {
    CHAT STYLES
    ============================================ */
 .chat-body { 
-  height: 60vh; 
+  height: 70vh; 
   overflow-y: auto; 
   background: #f8f9fa;
   padding: 1.5rem;
@@ -375,6 +375,131 @@ form textarea:focus {
 .noticia-card .card-footer {
   background-color: #f8f9fa;
   border-top: 1px solid #dee2e6;
+}
+
+/* ============================================
+   SCROLL TO BOTTOM BUTTON
+   ============================================ */
+.scroll-to-bottom {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 100;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.scroll-to-bottom:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-to-bottom.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   CONTADOR DE CARACTERES
+   ============================================ */
+#charCounter {
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+#charCounter.warning {
+  color: #ff9800 !important;
+  font-weight: 600;
+}
+
+#charCounter.danger {
+  color: #f44336 !important;
+  font-weight: 700;
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+[data-bs-theme="dark"] body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+[data-bs-theme="dark"] .roles-sidebar {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .role-btn {
+  background: #2c3e50;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .role-btn:hover {
+  background: #34495e;
+}
+
+[data-bs-theme="dark"] .role-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+[data-bs-theme="dark"] .card {
+  background: #2c3e50;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .card-header {
+  background: #34495e;
+  border-color: #34495e;
+}
+
+[data-bs-theme="dark"] .card-footer {
+  background: #34495e;
+  border-color: #34495e;
+}
+
+[data-bs-theme="dark"] .form-control {
+  background: #34495e;
+  border-color: #4a5f7f;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+  background: #3d5a80;
+  border-color: #667eea;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .message.user {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+[data-bs-theme="dark"] .message.bot {
+  background: #34495e;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .noticia-card {
+  background: #2c3e50;
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .noticia-card .card-title {
+  color: #ecf0f1;
+}
+
+[data-bs-theme="dark"] .noticia-card .card-text {
+  color: #bdc3c7;
+}
+
+[data-bs-theme="dark"] .noticia-card .card-footer {
+  background: #34495e;
+  border-color: #4a5f7f;
 }
 
 /* ============================================
